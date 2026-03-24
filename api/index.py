@@ -1,11 +1,14 @@
 import json
 import os
+from pathlib import Path
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 
 app = FastAPI()
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 app.add_middleware(
     CORSMiddleware,
@@ -89,3 +92,9 @@ async def generate(request: Request):
             status_code=500,
             content={"error": f"Server fout: {str(e)}"},
         )
+
+
+@app.get("/")
+async def serve_index():
+    html_file = PROJECT_ROOT / "index.html"
+    return HTMLResponse(content=html_file.read_text(encoding="utf-8"))
