@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Builder — High End AI Gym</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #1c1c1c;
+    --white: #ffffff;
+    --acid: #9e00ff;
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --mid: #2a2a2a;
+    --dim: #333333;
+    --muted: #aaa;
+    --border: #4a4a4a;
+  }
+
+  @keyframes goldShimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  @page {
+    size: auto;
+    margin: 15mm 20mm;
+  }
+  @media print {
+    html {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      color: #111111 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .no-print, .timer-wrap, .progress-row, .result-screen, .cta-actions-bar {
+      display: none !important;
+    }
+    .setup-screen { display: none !important; }
+    .main-screen { display: block !important; }
+
+    .page {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+
+    /* ── HERO: conform webversie ── */
+    .hero {
+      background: #2a2a2a !important;
+      border: 1px solid #4a4a4a !important;
+      padding: 2vw 2.5vw !important;
+      margin-bottom: 1.5vw !important;
+      border-radius: 4px !important;
+      overflow: visible !important;
+      position: relative !important;
+    }
+    .hero::before {
+      content: '' !important;
+      display: block !important;
+      position: absolute !important;
+      top: -4vw !important; right: -4vw !important;
+      width: 18vw !important; height: 18vw !important;
+      border-radius: 50% !important;
+      border: 3vw solid #c9a84c !important;
+      opacity: .07 !important;
+      pointer-events: none !important;
+    }
+    .gym-tag {
+      display: inline-block !important;
+      font-family: 'Bebas Neue', sans-serif !important;
+      font-size: 1.1vw !important;
+      letter-spacing: .18em !important;
+      color: #c9a84c !important;
+      border: 1px solid #c9a84c !important;
+      padding: 0.3vw 0.8vw !important;
+      border-radius: 2px !important;
+      margin-bottom: 1.5vw !important;
+      background: transparent !important;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif !important;
+      font-size: 5vw !important;
+      line-height: 0.95 !important;
+      letter-spacing: .02em !important;
+      color: #ffffff !important;
+      margin-bottom: 0.6vw !important;
+    }
+    .hero-title span { color: #c9a84c !important; }
+    .hero-sub {
+      font-size: 1.1vw !important;
+      color: #888 !important;
+      letter-spacing: .04em !important;
+      text-transform: uppercase !important;
+      margin-bottom: 1.5vw !important;
+    }
+    .hero-brief {
+      font-size: 1.1vw !important;
+      line-height: 1.7 !important;
+      color: #cccccc !important;
+      border-left: 2px solid #c9a84c !important;
+      padding-left: 1.2vw !important;
+      max-width: 70vw !important;
+    }
+    .hero-brief strong { color: #ffffff !important; }
+
+    /* ── META PILLS ── */
+    .meta-row {
+      display: flex !important;
+      gap: 0.8vw !important;
+      margin-bottom: 1.5vw !important;
+      flex-wrap: wrap !important;
+    }
+    .meta-pill {
+      font-size: 1vw !important;
+      padding: 0.3vw 1vw !important;
+      background: #ffffff !important;
+      color: #111 !important;
+      border: 1.5px solid #333 !important;
+      border-radius: 2px !important;
+    }
+    .meta-pill.accent {
+      background: #c9a84c !important;
+      color: #111 !important;
+      border-color: #c9a84c !important;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      display: block !important;
+      font-size: 1.1vw !important;
+      color: #c9a84c !important;
+      letter-spacing: 0.18em !important;
+      margin-bottom: 1vw !important;
+    }
+
+    /* ── STEPS ── */
+    .steps-grid {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1vw !important;
+      width: 100% !important;
+      margin-bottom: 1.5vw !important;
+    }
+    .step-card {
+      background: #ffffff !important;
+      border: 1.5px solid #9e00ff !important;
+      padding: 1.2vw 1.8vw !important;
+      border-radius: 3px !important;
+      break-inside: avoid !important;
+      width: 100% !important;
+      display: grid !important;
+      grid-template-columns: 5vw 1fr !important;
+      gap: 0 1.2vw !important;
+      box-sizing: border-box !important;
+    }
+    .step-number {
+      font-size: 4vw !important;
+      color: #e0d0f0 !important;
+      grid-row: span 4 !important;
+      align-self: start !important;
+      line-height: 1 !important;
+    }
+    .step-head {
+      display: flex !important;
+      align-items: baseline !important;
+      gap: 0.8vw !important;
+      margin-bottom: 0.5vw !important;
+    }
+    .step-name { font-size: 1.6vw !important; color: #111111 !important; }
+    .step-tag { font-size: 1vw !important; color: #c9a84c !important; opacity: 1 !important; }
+    .step-desc { font-size: 1.1vw !important; color: #444444 !important; margin-bottom: 0.6vw !important; }
+    .step-q-label {
+      font-size: 1vw !important;
+      color: #9e00ff !important;
+      display: block !important;
+      margin-bottom: 0.4vw !important;
+    }
+    .step-q-block {
+      font-size: 1vw !important;
+      font-style: italic !important;
+      color: #333333 !important;
+      border-left: 2px solid #9e00ff !important;
+      background: transparent !important;
+      padding: 0.5vw 0.8vw !important;
+      margin-bottom: 0.6vw !important;
+    }
+    .step-note-wrap {
+      grid-column: 2 / 3 !important;
+      margin-top: 0.6vw !important;
+      width: 100% !important;
+    }
+    .step-note-label {
+      font-size: 1vw !important;
+      color: #c9a84c !important;
+      display: block !important;
+      margin-bottom: 0.4vw !important;
+    }
+    .step-note {
+      width: 100% !important;
+      min-height: 8vw !important;
+      font-size: 1vw !important;
+      background: #ffffff !important;
+      border: 1px solid #cccccc !important;
+      color: #111111 !important;
+      padding: 0.6vw !important;
+      border-radius: 2px !important;
+      box-sizing: border-box !important;
+    }
+
+    /* ── CTA BAR: gouden achtergrond ── */
+    .cta-bar {
+      background: #c9a84c !important;
+      border: none !important;
+      border-radius: 3px !important;
+      padding: 1.5vw 2vw !important;
+      margin-top: 1.5vw !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .cta-text { font-size: 1.6vw !important; color: #111111 !important; }
+    .cta-sub { font-size: 1.1vw !important; color: #333333 !important; margin-top: 0.3vw !important; }
+    #sharpInsight {
+      width: 100% !important;
+      min-height: 5vw !important;
+      font-size: 1vw !important;
+      background: #ffffff !important;
+      border: 1px solid rgba(0,0,0,0.3) !important;
+      color: #111111 !important;
+      padding: 0.6vw !important;
+      margin-top: 0.8vw !important;
+      border-radius: 2px !important;
+      box-sizing: border-box !important;
+    }
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  .setup-screen { display: block; }
+  .main-screen { display: none; }
+
+  /* ---- SETUP HERO ---- */
+  .setup-hero {
+    background: var(--mid); border: 1px solid var(--border);
+    border-radius: 4px; padding: 40px; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .setup-hero::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    border: 40px solid var(--acid); opacity: .05;
+  }
+  .gym-tag {
+    display: inline-block; font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px; letter-spacing: .18em;
+    background: transparent; color: #c9a84c;
+    border: 1px solid #c9a84c; padding: 3px 10px; border-radius: 2px; margin-bottom: 20px;
+  }
+  .setup-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 7vw, 68px); line-height: .95;
+    color: var(--white); margin-bottom: 8px;
+  }
+  .setup-title span { color: var(--acid); }
+  .setup-sub {
+    font-size: 14px; color: var(--muted); letter-spacing: .04em;
+    text-transform: uppercase; margin-bottom: 24px; font-weight: 400;
+  }
+  .setup-intro {
+    font-size: 15px; line-height: 1.7; color: #d0d0d0;
+    max-width: 560px; border-left: 2px solid var(--acid); padding-left: 16px;
+  }
+  .setup-intro strong { color: var(--white); font-weight: 500; }
+
+  .setup-form { display: flex; flex-direction: column; gap: 20px; }
+
+  .form-group {
+    background: var(--mid); border: 1px solid var(--border);
+    border-radius: 4px; padding: 20px 24px;
+  }
+  .form-label {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif; font-size: 11px;
+    letter-spacing: .16em; margin-bottom: 10px;
+    color: #c9a84c;
+  }
+  .form-input {
+    width: 100%; background: var(--dim); border: 1px solid var(--border);
+    border-radius: 3px; color: var(--white); font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 400; padding: 10px 14px; outline: none;
+    transition: border-color .2s;
+  }
+  .form-input:focus { border-color: var(--acid); }
+  .form-input::placeholder { color: #555; }
+  textarea.form-input { resize: none; min-height: 80px; line-height: 1.6; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+
+  /* ---- AI GENERATE BUTTON ---- */
+  .ai-generate-row {
+    display: flex; align-items: center; gap: 12px; margin-top: 14px;
+  }
+  .ai-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--acid); color: var(--white);
+    border: none; border-radius: 3px; cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+    letter-spacing: .1em; padding: 10px 18px;
+    transition: opacity .15s; flex-shrink: 0;
+  }
+  .ai-btn:hover { opacity: .85; }
+  .ai-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .ai-btn-icon {
+    width: 16px; height: 16px; flex-shrink: 0;
+  }
+  .ai-hint {
+    font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.5;
+  }
+
+  /* ---- GENERATING STATE ---- */
+  .generating-bar {
+    display: none; align-items: center; gap: 12px;
+    background: #2a2a2a; border: 1px solid var(--acid);
+    border-radius: 3px; padding: 12px 16px; margin-top: 12px;
+  }
+  .generating-bar.show { display: flex; }
+  .gen-dots { display: flex; gap: 5px; }
+  .gen-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--acid);
+    animation: dotPulse 1.2s ease-in-out infinite;
+  }
+  .gen-dot:nth-child(2) { animation-delay: .2s; }
+  .gen-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes dotPulse { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+  .gen-text { font-size: 13px; color: var(--acid); font-style: italic; }
+
+  /* ---- STEP BUILDER ---- */
+  .step-builder-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .step-builder-item {
+    display: grid; grid-template-columns: 36px 1fr 1fr 32px;
+    gap: 8px; align-items: start; background: var(--dim);
+    border: 1px solid var(--border); border-radius: 3px; padding: 12px 14px;
+    animation: slideIn .25s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .step-num-badge {
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+    color: #444; line-height: 1; padding-top: 8px;
+  }
+  .step-builder-item .form-input { font-size: 13px; padding: 8px 10px; }
+  .remove-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 3px;
+    color: var(--muted); font-size: 16px; cursor: pointer;
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    margin-top: 6px; transition: border-color .2s, color .2s; flex-shrink: 0;
+  }
+  .remove-btn:hover { border-color: #c84040; color: #c84040; }
+  .add-step-btn {
+    background: transparent; border: 1px dashed var(--border); border-radius: 3px;
+    color: var(--muted); font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px; letter-spacing: .12em; padding: 10px;
+    cursor: pointer; width: 100%; transition: border-color .2s, color .2s;
+  }
+  .add-step-btn:hover { border-color: var(--acid); color: var(--acid); }
+
+  /* ---- TIMER SELECT ---- */
+  .timer-select { display: flex; gap: 8px; flex-wrap: wrap; }
+  .timer-opt {
+    flex: 1; min-width: 70px; text-align: center; padding: 10px;
+    border: 1px solid var(--border); border-radius: 3px; background: var(--dim);
+    color: var(--muted); font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px; letter-spacing: .06em; cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+  }
+  .timer-opt:hover { border-color: #555; color: var(--white); }
+  .timer-opt.selected { border-color: #c9a84c; color: #c9a84c; background: #2a2a2a; }
+
+  .launch-btn {
+    background: var(--acid); color: var(--white); border: none; border-radius: 4px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .1em;
+    padding: 18px 32px; cursor: pointer; width: 100%; transition: opacity .15s;
+  }
+  .launch-btn:hover { opacity: .88; }
+  .launch-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ---- MAIN SCREEN ---- */
+  .hero {
+    background: var(--mid); border: 1px solid var(--border);
+    border-radius: 4px; padding: 40px 40px 32px;
+    margin-bottom: 24px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    border: 40px solid #c9a84c; opacity: .07;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 7vw, 72px); line-height: .95;
+    letter-spacing: .02em; color: var(--white); margin-bottom: 8px;
+  }
+  .hero-title span { color: #c9a84c; }
+  .hero-sub {
+    font-size: 14px; color: var(--muted); letter-spacing: .04em;
+    text-transform: uppercase; margin-bottom: 24px; font-weight: 400;
+  }
+  .hero-brief {
+    font-size: 15px; line-height: 1.7; color: #d0d0d0;
+    max-width: 580px; border-left: 2px solid #c9a84c; padding-left: 16px;
+  }
+  .hero-brief strong { color: var(--white); font-weight: 500; }
+
+  .meta-row { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+  .meta-pill {
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; padding: 5px 12px; border-radius: 2px;
+    background: #2e2e2e; color: #aaa; border: 1px solid #4a4a4a;
+  }
+  .meta-pill.accent { background: #c9a84c; color: #111; border-color: #c9a84c; }
+
+  .timer-wrap {
+    display: flex; align-items: center; gap: 20px;
+    background: #2a2a2a; border: 1px solid #4a4a4a;
+    border-radius: 4px; padding: 16px 24px; margin-bottom: 24px;
+  }
+  .timer-ring { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring circle.bg { fill: none; stroke: #444444; stroke-width: 4; }
+  .timer-ring circle.prog {
+    fill: none; stroke: #c9a84c; stroke-width: 4;
+    stroke-dasharray: 175.9; stroke-dashoffset: 175.9;
+    stroke-linecap: round; transition: stroke-dashoffset .5s linear;
+  }
+  .timer-display {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: 'Bebas Neue', sans-serif; font-size: 18px;
+    color: #c9a84c; letter-spacing: .04em;
+  }
+  .timer-info { flex: 1; }
+  .timer-label { display: inline-block; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: .1em; color: #c9a84c; margin-bottom: 4px; }
+  .timer-status { font-size: 15px; color: var(--white); }
+  .timer-btn {
+    font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: .1em;
+    padding: 10px 20px; border-radius: 2px; border: none; cursor: pointer;
+    background: #c9a84c; color: #111; transition: opacity .15s; white-space: nowrap;
+  }
+  .timer-btn:hover { opacity: .85; }
+  .timer-btn.secondary { background: transparent; color: var(--white); border: 1px solid #555; }
+
+  .progress-row { display: flex; gap: 6px; margin-bottom: 24px; }
+  .prog-seg { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .prog-seg-fill { height: 100%; background: #c9a84c; width: 0%; transition: width .4s ease; }
+
+  .section-label {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+    letter-spacing: .18em; color: #c9a84c; margin-bottom: 12px;
+  }
+  .steps-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .step-card {
+    background: var(--mid); border: 1px solid var(--border);
+    border-radius: 4px; padding: 18px 22px;
+    display: grid; grid-template-columns: 52px 1fr;
+    gap: 0 14px; align-items: start;
+  }
+  .step-number {
+    font-family: 'Bebas Neue', sans-serif; font-size: 40px;
+    line-height: 1; color: #5a4a1a; padding-top: 4px;
+    grid-row: span 4; align-self: start;
+  }
+  .step-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .step-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .06em; color: var(--white); }
+  .step-tag { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #c9a84c; opacity: .8; }
+  .step-desc { font-size: 14px; line-height: 1.6; color: #c8c8c8; margin-bottom: 10px; }
+  .step-q-block {
+    font-size: 13px; font-style: italic; line-height: 1.6;
+    color: #d0d0d0; background: transparent;
+    border-left: 2px solid #c9a84c;
+    padding: 8px 12px; border-radius: 0 2px 2px 0;
+  }
+  .step-q-label {
+    font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+    letter-spacing: .12em; color: #c9a84c;
+    display: block; margin-bottom: 6px; font-style: normal;
+  }
+
+  .step-note-wrap {
+    grid-column: 2 / 3;
+    margin-top: 10px;
+  }
+  .step-note-label {
+    font-family: 'Bebas Neue', sans-serif; font-size: 13px;
+    letter-spacing: .12em; color: #c9a84c;
+    display: block; margin-bottom: 5px;
+  }
+  .step-note {
+    width: 100%; background: #303030; border: 1px solid #4a4a4a;
+    border-radius: 3px; color: var(--white); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 300; line-height: 1.7; padding: 9px 12px;
+    resize: none; outline: none; min-height: 128px;
+    transition: border-color .2s;
+  }
+  .step-note:focus { border-color: #c9a84c; box-shadow: 0 0 0 2px rgba(201,168,76,0.15); }
+  .step-note::placeholder { color: #666; }
+
+  .notities {
+    background: var(--mid); border: 1px solid var(--border);
+    border-radius: 4px; padding: 18px 22px; margin-bottom: 28px;
+  }
+  .notities textarea {
+    width: 100%; background: transparent; border: none; outline: none;
+    color: var(--white); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; line-height: 1.8; resize: none; min-height: 90px;
+  }
+  .notities textarea::placeholder { color: #444; }
+
+  .result-screen { display: none; text-align: center; padding: 32px 20px; }
+  .result-screen.show { display: block; }
+  .result-big { font-family: 'Bebas Neue', sans-serif; font-size: 56px; letter-spacing: .04em; color: #c9a84c; margin-bottom: 8px; }
+  .result-sub { font-size: 15px; color: #aaa; }
+
+  .cta-bar {
+    background: var(--mid); border: 1px solid var(--border); border-radius: 4px;
+    padding: 18px 28px; display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .cta-text { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: .06em; color: #c9a84c; }
+  .cta-sub { font-size: 13px; color: #c0c0c0; margin-top: 2px; }
+  .cta-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cta-actions-bar {
+    display: flex; flex-direction: column;
+    gap: 10px; margin-top: 16px; width: 100%;
+  }
+  .download-btn {
+    width: 100%;
+    background: #c9a84c !important; color: #111 !important;
+    font-size: 18px !important; padding: 16px 24px !important;
+    border: none !important; text-align: center;
+  }
+  .download-btn:hover { opacity: .85; }
+  .cta-secondary-btns {
+    display: flex; gap: 10px; width: 100%;
+  }
+  .cta-secondary-btns .cta-btn { flex: 1; text-align: center; }
+  .cta-btn {
+    font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: .1em;
+    padding: 9px 16px; border-radius: 2px; border: none; cursor: pointer;
+    background: #c9a84c; color: #111; transition: opacity .15s;
+  }
+  .cta-btn:hover { opacity: .8; }
+  .cta-btn.outline { background: transparent; color: var(--white); border: 1.5px solid rgba(255,255,255,0.3); }
+
+  .error-msg {
+    background: #2a0a0a; border: 1px solid #6b2020; border-radius: 3px;
+    padding: 10px 14px; font-size: 13px; color: #f09595;
+    margin-top: 10px; display: none;
+  }
+  .error-msg.show { display: block; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ======================== SETUP ======================== -->
+  <div class="setup-screen" id="setupScreen">
+
+    <div class="setup-hero">
+      <div class="gym-tag">High End AI Gym · Innovatiemarkt</div>
+      <div class="setup-title">MISSION<br><span>BUILDER</span></div>
+      <div class="setup-sub">Bouw je eigen AI-missiekaart</div>
+      <div class="setup-intro">
+        Vul de missienaam en context in. <strong>Laat AI de processtappen voor je genereren</strong> — of stel ze zelf samen. Kies de tijdsduur en start de missie.
+      </div>
+    </div>
+
+    <div class="setup-form">
+
+      <!-- MISSIE + CONTEXT -->
+      <div class="form-group">
+        <label class="form-label">— Missienaam</label>
+        <input class="form-input" id="missionName" type="text"
+          placeholder="Bijv: AI Klantreisontwerp, AI Dataarchitectuur, AI Claimafhandeling…"
+          maxlength="60" oninput="onMissionInput()">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">— Context & opdracht</label>
+        <textarea class="form-input" id="missionContext" rows="3"
+          placeholder="Beschrijf het proces of de uitdaging. Bijv: Hoe zou je het volledige schadeclaimproces opnieuw ontwerpen als AI geen beperkingen kent?"
+          oninput="onMissionInput()"></textarea>
+
+        <div class="ai-generate-row">
+          <button class="ai-btn" id="aiGenBtn" onclick="generateSteps()" disabled>
+            <svg class="ai-btn-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.42 1.42M11.53 11.53l1.42 1.42M3.05 12.95l1.42-1.42M11.53 4.47l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            Genereer stappen met AI
+          </button>
+          <div class="ai-hint">AI stelt processtappen en missievragen voor op basis van jouw input. Je kunt ze daarna aanpassen.</div>
+        </div>
+
+        <div class="generating-bar" id="generatingBar">
+          <div class="gen-dots">
+            <div class="gen-dot"></div>
+            <div class="gen-dot"></div>
+            <div class="gen-dot"></div>
+          </div>
+          <div class="gen-text" id="genText">AI denkt na over processtappen…</div>
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+
+      <!-- TAGS -->
+      <div class="form-group">
+        <label class="form-label">— Tags (optioneel)</label>
+        <div class="form-row">
+          <input class="form-input" id="tag1" type="text" placeholder="Bijv: Pensioenuitvoering" maxlength="30">
+          <input class="form-input" id="tag2" type="text" placeholder="Bijv: Greenfield mindset" maxlength="30">
+        </div>
+      </div>
+
+      <!-- STAPPEN -->
+      <div class="form-group">
+        <label class="form-label">— Processtappen <span style="color:var(--muted);font-size:12px;letter-spacing:.04em;font-family:'DM Sans',sans-serif;text-transform:none;font-weight:300"> — max 6, klik AI-knop hierboven of vul zelf in</span></label>
+        <div class="step-builder-list" id="stepBuilderList"></div>
+        <button class="add-step-btn" id="addStepBtn" onclick="addStep()">+ Stap toevoegen</button>
+      </div>
+
+      <!-- TIMER -->
+      <div class="form-group">
+        <label class="form-label">— Tijdsduur</label>
+        <div class="timer-select" id="timerSelect">
+          <div class="timer-opt" data-val="300" onclick="selectTimer(this)">5 min</div>
+          <div class="timer-opt selected" data-val="600" onclick="selectTimer(this)">10 min</div>
+          <div class="timer-opt" data-val="900" onclick="selectTimer(this)">15 min</div>
+          <div class="timer-opt" data-val="1200" onclick="selectTimer(this)">20 min</div>
+        </div>
+      </div>
+
+      <button class="launch-btn" id="launchBtn" onclick="launch()" disabled>Missie starten →</button>
+
+    </div>
+  </div>
+
+  <!-- ======================== MAIN SCREEN ======================== -->
+  <div class="main-screen" id="mainScreen">
+    <div class="hero">
+      <div class="gym-tag">High End AI Gym · Innovatiemarkt</div>
+      <div class="hero-title">MISSION:<br><span id="displayTitle">—</span></div>
+      <div class="hero-sub" id="displaySub"></div>
+      <div class="hero-brief" id="displayContext"></div>
+    </div>
+
+    <div class="meta-row" id="displayMeta"></div>
+
+    <div class="timer-wrap no-print">
+      <div class="timer-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="bg" cx="32" cy="32" r="28"/>
+          <circle class="prog" id="timerCircle" cx="32" cy="32" r="28"/>
+        </svg>
+        <div class="timer-display" id="timerDisplay">—</div>
+      </div>
+      <div class="timer-info">
+        <div class="timer-label">Training Timer</div>
+        <div class="timer-status" id="timerStatus">Klaar om te starten</div>
+      </div>
+      <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">Start</button>
+      <button class="timer-btn secondary no-print" onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div class="progress-row no-print" id="progressRow"></div>
+
+    <div class="section-label">— De Rondes</div>
+    <div class="steps-grid" id="stepsGrid"></div>
+
+    <div class="result-screen" id="resultScreen">
+      <div class="result-big">TIJD OM!</div>
+      <div class="result-sub">Deel je scherpste inzicht met de groep.</div>
+    </div>
+
+    <div class="cta-bar">
+      <div style="flex:1;min-width:0;width:100%;">
+        <div class="cta-text">Wat is jouw scherpste inzicht?</div>
+        <div class="cta-sub" id="displayCtaSub"></div>
+        <textarea id="sharpInsight" rows="6" placeholder="Schrijf hier je scherpste inzicht van deze sessie…" style="width:100%;margin-top:14px;min-height:128px;background:#303030;border:1px solid #4a4a4a;border-radius:3px;color:#ffffff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;line-height:1.7;padding:10px 13px;resize:none;outline:none;" onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='#4a4a4a'"></textarea>
+      </div>
+    </div>
+
+    <div class="cta-actions-bar no-print">
+      <button class="cta-btn download-btn" onclick="downloadInsights()">Download</button>
+      <div class="cta-secondary-btns">
+        <button class="cta-btn outline" onclick="goBack()">Bewerk</button>
+        <button class="cta-btn outline" onclick="resetAll()">Opnieuw</button>
+        <button class="cta-btn outline" onclick="window.print()">Print</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- CONFIRM OVERLAY -->
+  <div id="confirmOverlay" style="
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,0.7); align-items:center; justify-content:center;
+  ">
+    <div style="
+      background:#2a2a2a; border:1px solid #4a4a4a; border-radius:6px;
+      padding:32px 36px; max-width:400px; width:90%; text-align:center;
+    ">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;color:#ffffff;margin-bottom:12px;">
+        Weet je het zeker?
+      </div>
+      <div style="font-size:14px;color:#cccccc;line-height:1.6;margin-bottom:24px;">
+        Weet je zeker dat je alles wilt wissen? Je ingevulde missie, stappen en notities worden verwijderd.
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button onclick="confirmReset(false)" style="
+          font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.1em;
+          padding:10px 24px;border-radius:2px;cursor:pointer;
+          background:transparent;color:#ffffff;border:1.5px solid rgba(255,255,255,0.3);
+          transition:opacity .15s;
+        ">Nee, terug</button>
+        <button onclick="confirmReset(true)" style="
+          font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.1em;
+          padding:10px 24px;border-radius:2px;cursor:pointer;
+          background:#9e00ff;color:#ffffff;border:none;
+          transition:opacity .15s;
+        ">Ja, wis alles</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let steps = [];
+  let totalTime = 600;
+  let remaining = 600;
+  let running = false;
+  let interval = null;
+  const circumference = 175.9;
+
+  // ---- ENABLE/DISABLE CONTROLS ----
+  function onMissionInput() {
+    const name = document.getElementById('missionName').value.trim();
+    const ctx  = document.getElementById('missionContext').value.trim();
+    const ready = name.length > 2 && ctx.length > 10;
+    document.getElementById('aiGenBtn').disabled = !ready;
+    checkLaunchReady();
+  }
+
+  function checkLaunchReady() {
+    const name = document.getElementById('missionName').value.trim();
+    const hasSteps = document.querySelectorAll('.step-builder-item').length > 0;
+    document.getElementById('launchBtn').disabled = !(name.length > 2 && hasSteps);
+  }
+
+  // ---- AI GENERATE ----
+  async function generateSteps() {
+    const name = document.getElementById('missionName').value.trim();
+    const ctx  = document.getElementById('missionContext').value.trim();
+
+    const btn = document.getElementById('aiGenBtn');
+    const bar = document.getElementById('generatingBar');
+    const err = document.getElementById('errorMsg');
+    const genText = document.getElementById('genText');
+
+    btn.disabled = true;
+    bar.classList.add('show');
+    err.classList.remove('show');
+
+    const genMessages = [
+      'AI analyseert het proces…',
+      'Processtappen worden opgebouwd…',
+      'AI-missievragen formuleren…',
+      'Bijna klaar…'
+    ];
+    let msgIdx = 0;
+    genText.textContent = genMessages[0];
+    const msgInterval = setInterval(() => {
+      msgIdx = (msgIdx + 1) % genMessages.length;
+      genText.textContent = genMessages[msgIdx];
+    }, 1800);
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mission_name: name,
+          context: ctx
+        })
+      });
+
+      clearInterval(msgInterval);
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'API fout: ' + res.status);
+      }
+
+      const parsed = await res.json();
+
+      if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Geen stappen ontvangen');
+
+      // Clear existing and populate
+      const list = document.getElementById('stepBuilderList');
+      list.innerHTML = '';
+      parsed.slice(0, 6).forEach((s, i) => addStepItem(i + 1, s.name || '', s.desc || '', s.q || ''));
+      document.getElementById('addStepBtn').style.display = list.children.length >= 6 ? 'none' : 'block';
+      checkLaunchReady();
+
+    } catch (e) {
+      clearInterval(msgInterval);
+      err.textContent = 'Genereren mislukt: ' + e.message + '. Vul de stappen handmatig in.';
+      err.classList.add('show');
+    } finally {
+      bar.classList.remove('show');
+      btn.disabled = false;
+    }
+  }
+
+  // ---- STEP BUILDER ----
+  function addStep() {
+    const list = document.getElementById('stepBuilderList');
+    if (list.children.length >= 6) return;
+    addStepItem(list.children.length + 1, '', '', '');
+    updateStepNumbers();
+    checkLaunchReady();
+  }
+
+  function addStepItem(num, name, desc, q) {
+    const list = document.getElementById('stepBuilderList');
+    if (list.children.length >= 6) return;
+    const div = document.createElement('div');
+    div.className = 'step-builder-item';
+    div.innerHTML = `
+      <div class="step-num-badge">${String(num).padStart(2,'0')}</div>
+      <input class="form-input" type="text" placeholder="Stap naam" value="${esc(name)}" maxlength="30" oninput="checkLaunchReady()">
+      <input class="form-input" type="text" placeholder="Korte omschrijving (max 12 woorden)" value="${esc(desc)}" maxlength="100">
+      <button class="remove-btn" onclick="removeStep(this)" title="Verwijder">×</button>
+      <div style="grid-column:2/4;margin-top:6px;">
+        <input class="form-input" type="text" placeholder="AI-missievraag: Hoe zou je AI kunnen gebruiken om…" value="${esc(q)}" maxlength="220">
+      </div>`;
+    list.appendChild(div);
+    document.getElementById('addStepBtn').style.display = list.children.length >= 6 ? 'none' : 'block';
+  }
+
+  function removeStep(btn) {
+    btn.closest('.step-builder-item').remove();
+    updateStepNumbers();
+    document.getElementById('addStepBtn').style.display = 'block';
+    checkLaunchReady();
+  }
+
+  function updateStepNumbers() {
+    document.querySelectorAll('.step-builder-item').forEach((item, i) => {
+      item.querySelector('.step-num-badge').textContent = String(i + 1).padStart(2, '0');
+    });
+  }
+
+  function selectTimer(el) {
+    document.querySelectorAll('.timer-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    totalTime = parseInt(el.dataset.val);
+  }
+
+  function esc(str) {
+    return (str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ---- LAUNCH ----
+  function launch() {
+    const name = document.getElementById('missionName').value.trim();
+    const context = document.getElementById('missionContext').value.trim();
+    const tag1 = document.getElementById('tag1').value.trim();
+    const tag2 = document.getElementById('tag2').value.trim();
+
+    steps = [];
+    document.querySelectorAll('.step-builder-item').forEach(item => {
+      const inputs = item.querySelectorAll('input.form-input');
+      const sName = inputs[0].value.trim();
+      const sDesc = inputs[1].value.trim();
+      const sQ    = inputs[2].value.trim();
+      if (sName) steps.push({ name: sName, desc: sDesc, q: sQ });
+    });
+
+    if (!steps.length) { alert('Voeg minimaal één stap toe.'); return; }
+
+    remaining = totalTime;
+    renderMain(name, context, tag1, tag2);
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'block';
+    window.scrollTo(0, 0);
+    updateTimerDisplay();
+  }
+
+  function renderMain(name, context, tag1, tag2) {
+    document.getElementById('displayTitle').textContent = name;
+    document.getElementById('displaySub').textContent = 'High End AI Gym · ' + fmt(totalTime) + ' minuten';
+    document.getElementById('displayContext').textContent = context;
+
+    const meta = document.getElementById('displayMeta');
+    meta.innerHTML = '';
+    [{ label: fmt(totalTime) + ' min', accent: true }, { label: steps.length + ' rondes' }, { label: 'Solo of team' }, ...(tag1?[{label:tag1}]:[]), ...(tag2?[{label:tag2}]:[])]
+      .forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'meta-pill' + (p.accent ? ' accent' : '');
+        d.textContent = p.label;
+        meta.appendChild(d);
+      });
+
+    const pr = document.getElementById('progressRow');
+    pr.innerHTML = steps.map((_,i) => `<div class="prog-seg"><div class="prog-seg-fill" id="p${i}"></div></div>`).join('');
+
+    const stepMin = Math.round(totalTime / steps.length / 60 * 10) / 10;
+    document.getElementById('stepsGrid').innerHTML = steps.map((s, i) => `
+      <div class="step-card" id="stepCard${i}">
+        <div class="step-number">${String(i+1).padStart(2,'0')}</div>
+        <div class="step-head">
+          <div class="step-name">${esc(s.name)}</div>
+          <div class="step-tag">${stepMin} min</div>
+        </div>
+        <div class="step-desc">${esc(s.desc)}</div>
+        ${s.q ? `<div class="step-q-block"><span class="step-q-label">AI Missievraag</span>${esc(s.q)}</div>` : ''}
+        <div class="step-note-wrap">
+          <span class="step-note-label">— Jouw idee voor deze ronde</span>
+          <textarea class="step-note" id="note${i}" placeholder="Hoe zou AI hier ingezet kunnen worden? Noteer je eerste gedachte…" rows="6"></textarea>
+        </div>
+      </div>`).join('');
+
+    document.getElementById('displayCtaSub').textContent =
+      'Welke stap in "' + name + '" leent zich het meest voor een AI-first aanpak?';
+  }
+
+  // ---- TIMER ----
+  function fmt(s) {
+    return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+  }
+
+  function updateTimerDisplay() {
+    document.getElementById('timerDisplay').textContent = fmt(remaining);
+    const elapsed = totalTime - remaining;
+    const pct = elapsed / totalTime;
+    document.getElementById('timerCircle').style.strokeDashoffset = circumference * (1 - pct);
+    const stepDur = totalTime / steps.length;
+    const stepIdx = Math.min(steps.length - 1, Math.floor(elapsed / stepDur));
+    steps.forEach((_, i) => {
+      const fill = document.getElementById('p' + i);
+      if (!fill) return;
+      if (i < stepIdx) fill.style.width = '100%';
+      else if (i === stepIdx) fill.style.width = ((elapsed - stepIdx * stepDur) / stepDur * 100) + '%';
+      else fill.style.width = '0%';
+    });
+    if (remaining === 0) {
+      document.getElementById('timerStatus').textContent = 'Missie voltooid';
+      document.getElementById('resultScreen').classList.add('show');
+    } else if (elapsed > 0) {
+      document.getElementById('timerStatus').textContent = 'Ronde ' + (stepIdx + 1) + ' · ' + steps[stepIdx].name;
+    }
+  }
+
+  function toggleTimer() {
+    if (remaining === 0) return;
+    running = !running;
+    document.getElementById('timerBtn').textContent = running ? 'Pauze' : 'Hervat';
+    if (running) {
+      interval = setInterval(() => {
+        remaining--;
+        updateTimerDisplay();
+        if (remaining === 0) { clearInterval(interval); running = false; document.getElementById('timerBtn').textContent = 'Klaar'; }
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(interval); running = false; remaining = totalTime;
+    document.getElementById('timerBtn').textContent = 'Start';
+    document.getElementById('timerStatus').textContent = 'Klaar om te starten';
+    document.getElementById('resultScreen').classList.remove('show');
+    updateTimerDisplay();
+  }
+
+  function resetAll() {
+    const ov = document.getElementById('confirmOverlay'); ov.style.display='flex';
+  }
+
+  function confirmReset(yes) {
+    document.getElementById('confirmOverlay').style.display='none';
+    if (!yes) return;
+    clearInterval(interval); running = false;
+    steps = [];
+    totalTime = 600; remaining = 600;
+    document.getElementById('missionName').value = '';
+    document.getElementById('missionContext').value = '';
+    document.getElementById('tag1').value = '';
+    document.getElementById('tag2').value = '';
+    document.getElementById('stepBuilderList').innerHTML = '';
+    document.getElementById('addStepBtn').style.display = 'block';
+    document.querySelectorAll('.timer-opt').forEach(o => o.classList.remove('selected'));
+    document.querySelector('.timer-opt[data-val="600"]').classList.add('selected');
+    document.getElementById('aiGenBtn').disabled = true;
+    document.getElementById('launchBtn').disabled = true;
+    document.getElementById('mainScreen').style.display = 'none';
+    document.getElementById('setupScreen').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function goBack() {
+    clearInterval(interval); running = false;
+    document.getElementById('mainScreen').style.display = 'none';
+    document.getElementById('setupScreen').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function downloadInsights() {
+    const mission = document.getElementById('displayTitle').textContent;
+    const context = document.getElementById('displayContext').textContent;
+    const sharp = document.getElementById('sharpInsight').value.trim();
+    let txt = 'MISSION: ' + mission + '\n';
+    txt += '─'.repeat(40) + '\n\n';
+    txt += 'Context\n' + context + '\n\n';
+    txt += '─'.repeat(40) + '\n\n';
+    steps.forEach((s, i) => {
+      txt += 'Ronde ' + (i+1) + ' · ' + s.name + '\n';
+      if (s.desc) txt += s.desc + '\n';
+      if (s.q)    txt += '\nAI Missievraag: ' + s.q + '\n';
+      const note = document.getElementById('note' + i);
+      if (note && note.value.trim()) txt += '\nJouw idee: ' + note.value.trim() + '\n';
+      txt += '\n';
+    });
+    if (sharp) {
+      txt += '─'.repeat(40) + '\n\n';
+      txt += 'Scherpste inzicht\n' + sharp + '\n';
+    }
+    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'mission-' + mission.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g,'') + '.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+</script>
+</body>
+</html>
